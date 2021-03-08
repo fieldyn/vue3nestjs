@@ -2,9 +2,12 @@ import {
   Body,
   ClassSerializerInterceptor,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
+  Put,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -20,8 +23,8 @@ import { AuthGuard } from 'src/auth/auth.guard';
 export class UserController {
   constructor(private userService: UserService) {}
   @Get()
-  async all(): Promise<User[]> {
-    return await this.userService.all();
+  async all(@Query('page') page: number): Promise<User[]> {
+    return await this.userService.paginate(page);
   }
 
   @Post()
@@ -32,11 +35,32 @@ export class UserController {
       last_name: body.last_name,
       email: body.email,
       password: password,
+      role: { id: body.role_id },
     });
   }
 
   @Get(':id')
   async get(@Param('id') id: number): Promise<User> {
     return this.userService.findOne({ id });
+  }
+
+  @Put(':id')
+  async update(
+    @Param('id') id: number,
+    @Body() body: UserCreateDto,
+  ): Promise<User> {
+    await this.userService.update(id, {
+      first_name: body.first_name,
+      last_name: body.last_name,
+      email: body.email,
+      role: { id: body.role_id },
+    });
+
+    return this.userService.findOne({ id });
+  }
+
+  @Delete(':id')
+  async delete(@Param('id') id: number) {
+    return this.userService.delete(id);
   }
 }
