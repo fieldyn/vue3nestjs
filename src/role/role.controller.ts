@@ -15,12 +15,12 @@ export class RoleController {
   constructor(private roleService: RoleService) {}
   @Get()
   async all(): Promise<Role[]> {
-    return this.roleService.all();
+    return this.roleService.all(['permissions']);
   }
 
   @Get(':id')
   async get(@Param('id') id: number): Promise<Role> {
-    return this.roleService.findOne({ id });
+    return this.roleService.findOne({ id }, ['permissions']);
   }
 
   @Post()
@@ -44,7 +44,7 @@ export class RoleController {
   ): Promise<Role> {
     await this.roleService.update(id, { name });
 
-    const role = await this.roleService.findOne({ id });
+    const role = await this.roleService.findOne({ id }, ['permissions']);
 
     return this.roleService.create({
       ...role,
